@@ -41,7 +41,7 @@ const logIn = (req, res) => {
                 const userName = user[0].user_name;
                 const userEmail = user[0].email;
 
-                const token = await jwt.sign({ email }, "Shhh");
+                const token = await jwt.sign({ email }, process.env.JWT_SECRET);
                 res.cookie("authToken", token);
                 res.json({
                     userName: userName,
@@ -66,8 +66,8 @@ const logIn = (req, res) => {
 const signOut = (req, res) => {
     res.clearCookie("authToken");
     res.json({
-        Status: "Sign Out Successful"
-    })
+        Status: "Sign Out Successful",
+    });
 };
 
 module.exports = { signUp, logIn, signOut };

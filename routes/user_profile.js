@@ -11,7 +11,9 @@ router.param("userId", getUserById);
 // User Data Sending.
 
 router.get("/user/:userId", isSingnedIn, (req, res) => {
-    res.send(req.profile);
+    res.json({
+        profile: req.profile,
+    });
 });
 
 module.exports = router;
