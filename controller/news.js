@@ -42,8 +42,6 @@ const getAllNews = async (req, res) => {
 const deleteNewsArticle = async (req, res) => {
     const newsId = req.params.newsId;
 
-    console.log(req.profile);
-
     try {
         const response = await News.findByIdAndDelete({ _id: newsId });
         console.log(response);
@@ -57,4 +55,30 @@ const deleteNewsArticle = async (req, res) => {
     }
 };
 
-module.exports = { createNews, getAllNews, deleteNewsArticle };
+// Updating a News Article By User
+
+const updateNewsArticle = async (req, res) => {
+    const newsId = req.params.newsId;
+
+    try {
+        const response = await News.findByIdAndUpdate(newsId, {
+            $set: req.body,
+        }).exec();
+        res.json({
+            message: "Updated Succesfully",
+        });
+    } catch (error) {
+        res.json({
+            err: `There is Some Error in Updating ${error}`,
+        });
+    }
+};
+
+// Exporting All the News Controllers
+
+module.exports = {
+    createNews,
+    getAllNews,
+    deleteNewsArticle,
+    updateNewsArticle,
+};
