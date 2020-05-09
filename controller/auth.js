@@ -1,57 +1,33 @@
-const { validationResult } = require("express-validator");
-const jwt = require("jsonwebtoken");
-
 const User = require("../models/user");
+const jwt = require("jsonwebtoken");
+const expressJWT = require("express-jwt");
 
-// SignUp Controller
+// SignIn Auth Controller Logic
 
-const signUp = (req, res) => {
-    const errors = validationResult(req);
-    console.log(errors);
-
-    if (!errors.isEmpty()) {
-        return res.json({ err: `Some Error is In your Data` });
-    }
-
-    var user = new User(req.body);
-
-    user.save()
-        .then((user) => {
-            const { first_name, last_name, email, user_name } = user;
-            res.json({
-                first_name,
-                last_name,
-                email,
-                user_name,
-            });
-        })
-        .catch((err) => {
-            res.json({ err: `Something Is wrong ${err}` });
-        });
-};
-
-// Login Controller
-
-const logIn = (req, res) => {
+const signin = (req, res) => {
     const { email, password } = req.body;
-    User.find({ email })
+    User.findOne({ email })
 
         .then(async (user) => {
-            if (user[0].comparePassword(password)) {
-                const userName = user[0].user_name;
-                const userEmail = user[0].email;
+            if (user.comparePassword(password)) {
+                const userName = user.user_name;
+                const userEmail = user.email;
 
-                const token = await jwt.sign({ email }, process.env.JWT_SECRET);
+                const token = await jwt.sign(
+                    { _id: user._id },
+                    process.env.JWT_SECRET
+                );
                 res.cookie("authToken", token);
                 res.json({
+                    _id: user._id,
                     userName: userName,
                     userEmail: userEmail,
                     token: token,
                 });
             } else {
-                res.json({
+                res.status(401).json({
                     err: `Something is wrong in login Process`,
-                }).status(400);
+                });
             }
         })
         .catch((err) => {
@@ -61,13 +37,34 @@ const logIn = (req, res) => {
         });
 };
 
-// Signout Controller
+// Signout Controller Logic
 
-const signOut = (req, res) => {
+const signout = (req, res) => {
     res.clearCookie("authToken");
-    res.json({
-        Status: "Sign Out Successful",
+    return res.status(200).json({
+        message: "Signout Succesfully",
     });
 };
 
-module.exports = { signUp, logIn, signOut };
+// required Sign in controler logic
+
+const requireSignIn = expressJWT({
+    secret: process.env.JWT_SECRET,
+    userProperty: "auth",
+});
+
+// hasAuthorization Controller Logic
+
+const hasAuthorization = (req, res, next) => {
+    const authorized =
+        req.profile && req.auth && req.profile._id == req.auth._id;
+
+    if (!authorized) {
+        return res.status(403).json({
+            error: "User is Not Authorized",
+        });
+    }
+    next();
+};
+
+module.exports = { signin, signout, requireSignIn, hasAuthorization };

@@ -1,25 +1,7 @@
 const router = require("express").Router();
-const jwt = require("jsonwebtoken");
-const { check, validationResult } = require("express-validator");
+const { signin, signout } = require("../controller/auth");
 
-const User = require("../models/user");
-const { signUp, logIn, signOut } = require("../controller/auth");
-const isSignedIn = require("../middleware/auth");
-
-// Signup route
-
-router.post("/signup", [
-    check("email").isEmail(),
-    check("password").isLength({ min: 8 }),
-    signUp,
-]);
-
-// Login Route
-
-router.post("/login", logIn);
-
-// SignOut Route
-
-router.get("/signout", signOut);
+router.post("/auth/signin", signin);
+router.get("/auth/signout", signout);
 
 module.exports = router;

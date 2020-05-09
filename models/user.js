@@ -40,6 +40,7 @@ const userSchema = new mongoose.Schema(
         dob: {
             type: Date,
         },
+
         follower: [
             {
                 type: ObjectId,
@@ -65,7 +66,7 @@ userSchema.pre("save", async function (next) {
     next();
 });
 
-// Instance Method For Checking The Password for login That Password is Matched or Not
+// Instance Method For Checking The Password for login. That Password is Matched or Not
 
 userSchema.methods.comparePassword = function (plaintext) {
     return bcrypt.compareSync(plaintext, this.password);
