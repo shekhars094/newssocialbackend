@@ -7,12 +7,7 @@ const { ObjectId } = mongoose.Schema.Types;
 
 const userSchema = new mongoose.Schema(
     {
-        first_name: {
-            type: String,
-            trim: true,
-            required: true,
-        },
-        last_name: {
+        name: {
             type: String,
             trim: true,
             required: true,

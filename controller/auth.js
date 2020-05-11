@@ -10,19 +10,18 @@ const signin = (req, res) => {
 
         .then(async (user) => {
             if (user.comparePassword(password)) {
-                const userName = user.user_name;
-                const userEmail = user.email;
-
                 const token = await jwt.sign(
                     { _id: user._id },
                     process.env.JWT_SECRET
                 );
                 res.cookie("authToken", token);
-                res.json({
+                return res.json({
+                    token,
                     _id: user._id,
-                    userName: userName,
-                    userEmail: userEmail,
-                    token: token,
+                    user: {
+                        name: user.name,
+                        email: user.email,
+                    },
                 });
             } else {
                 res.status(401).json({
@@ -61,7 +60,7 @@ const hasAuthorization = (req, res, next) => {
 
     if (!authorized) {
         return res.status(403).json({
-            error: "User is Not Authorized",
+            err: "User is Not Authorized",
         });
     }
     next();

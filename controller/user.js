@@ -79,7 +79,8 @@ const updateSingleUser = async (req, res) => {
         user.updatedAt = Date.now();
         await user.save();
         user.password = undefined;
-        res.json(user);
+
+        return res.json(user);
     } catch (err) {
         return res.status(400).json({
             error: "Not Able to Update User",
@@ -95,7 +96,7 @@ const deleteSingleUser = async (req, res) => {
         let deleteUser = await user.remove();
         deleteUser.password = undefined;
         res.json(user);
-    } catch (error) {
+    } catch (err) {
         return res.status(400).json({
             err: "Not Able to Delete User",
         });
