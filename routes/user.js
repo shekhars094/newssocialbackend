@@ -11,6 +11,10 @@ const {
     getUserById,
     updateSingleUser,
     userPhoto,
+    addFollower,
+    addFollowing,
+    removeFollower,
+    removeFollowing,
 } = require("../controller/user");
 
 // Loading a User
@@ -49,5 +53,13 @@ router.put("/users/:userId", requireSignIn, hasAuthorization, updateSingleUser);
 // get user Photo
 
 router.get("/users/photo/:userId", userPhoto);
+
+// update following
+
+router.put("/users/follow", requireSignIn, addFollowing, addFollower);
+
+// update unfollowing
+
+router.put("/users/unfollow", requireSignIn, removeFollowing, removeFollower);
 
 module.exports = router;

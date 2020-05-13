@@ -37,7 +37,10 @@ const createUser = (req, res) => {
 
 const getUserById = async (req, res, next, Id) => {
     try {
-        const user = await User.findById(Id);
+        const user = await User.findById(Id)
+            .populate("followings", "_id name")
+            .populated("followers", "_id name")
+            .exec();
         if (!user) {
             return res.status(400).json({
                 error: "User Not Found",
@@ -131,6 +134,80 @@ const userPhoto = async (req, res) => {
     }
 };
 
+// add Following
+
+const addFollowing = async (req, res, next) => {
+    try {
+        await User.findByIdAndUpdate(req.body.userId, {
+            $push: { followings: req.body.followId },
+        });
+        next();
+    } catch (error) {
+        return res.status(400).json({
+            err: "Something wrong is following",
+        });
+    }
+};
+
+// add follower
+
+const addFollower = async (req, res) => {
+    try {
+        let result = await User.findByIdAndUpdate(
+            req.body.followId,
+            { $push: { followers: req.body.userId } },
+            { new: true }
+        )
+            .populate("followings", "_id name")
+            .populate("followers", "_id name")
+            .exec();
+        result.password = undefined;
+        res.json(result);
+    } catch (error) {
+        return res.status(400).json({
+            err: "Something has gone in follwer",
+        });
+    }
+};
+
+// removeFollowing
+
+const removeFollowing = async (req, res, next) => {
+    try {
+        await User.findByIdAndUpdate(req.body.userId, {
+            $pull: { followings: req.body.unfollowId },
+        });
+        next();
+    } catch (error) {
+        return res.status(400).json({
+            err: "Something has gone Wrong",
+        });
+    }
+};
+
+// removeFollower
+
+const removeFollower = async (req, res) => {
+    try {
+        let result = await User.findByIdAndUpdate(
+            req.body.unfollowId,
+            { $pull: { followers: req.body.userId } },
+            { new: true }
+        )
+            .populate("followings", "_id name")
+            .populate("followers", "_id name")
+            .exec();
+        result.password = undefined;
+        res.json(result);
+    } catch (error) {
+        return res.status(400).json({
+            err: `Something is wrong ${error}`,
+        });
+    }
+};
+
+
+
 module.exports = {
     createUser,
     deleteSingleUser,
@@ -139,4 +216,8 @@ module.exports = {
     getUserById,
     getAllUsers,
     userPhoto,
+    addFollowing,
+    addFollower,
+    removeFollowing,
+    removeFollower,
 };

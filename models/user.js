@@ -39,13 +39,13 @@ const userSchema = new mongoose.Schema(
             trim: true,
         },
 
-        follower: [
+        followers: [
             {
                 type: ObjectId,
                 ref: "User",
             },
         ],
-        follwoing: [
+        following: [
             {
                 type: ObjectId,
                 ref: "User",
