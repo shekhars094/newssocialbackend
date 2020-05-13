@@ -10,6 +10,7 @@ const {
     getSingleUser,
     getUserById,
     updateSingleUser,
+    userPhoto,
 } = require("../controller/user");
 
 // Loading a User
@@ -44,5 +45,9 @@ router.delete(
 // Update Single User
 
 router.put("/users/:userId", requireSignIn, hasAuthorization, updateSingleUser);
+
+// get user Photo
+
+router.get("/users/photo/:userId", userPhoto);
 
 module.exports = router;

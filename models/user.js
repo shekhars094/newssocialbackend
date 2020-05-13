@@ -20,7 +20,6 @@ const userSchema = new mongoose.Schema(
         },
         password: {
             type: String,
-            required: true,
             trim: true,
         },
         user_name: {
@@ -28,12 +27,16 @@ const userSchema = new mongoose.Schema(
             trim: true,
         },
 
-        profile_avatar: {
+        photo: {
             type: Buffer,
             contentType: String,
         },
         dob: {
             type: Date,
+        },
+        about: {
+            type: String,
+            trim: true,
         },
 
         follower: [

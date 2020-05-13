@@ -1,4 +1,6 @@
 const { validationResult } = require("express-validator");
+const formidable = require("formidable");
+const fs = require("fs");
 const jwt = require("jsonwebtoken");
 const lodash = require("lodash");
 
@@ -73,19 +75,34 @@ const getSingleUser = async (req, res) => {
 // Update Single User
 
 const updateSingleUser = async (req, res) => {
-    try {
-        let user = req.profile;
-        user = lodash.extend(user, req.body);
-        user.updatedAt = Date.now();
-        await user.save();
-        user.password = undefined;
+    let form = new formidable.IncomingForm();
+    form.keepExtensions = true;
 
-        return res.json(user);
-    } catch (err) {
-        return res.status(400).json({
-            error: "Not Able to Update User",
-        });
-    }
+    form.parse(req, async (err, fields, files) => {
+        if (err) {
+            return res.status(400).json({
+                error: "Photo could not be uploaded",
+            });
+        }
+        let user = req.profile;
+        user = lodash.extend(user, fields);
+        user.updatedAt = Date.now();
+
+        if (files.photo) {
+            user.photo = fs.readFileSync(files.photo.path);
+            user.photo.contentType = files.photo.type;
+            console.log(user);
+        }
+        try {
+            await user.save();
+            user.password = undefined;
+            res.json(user);
+        } catch (err) {
+            return res.status(400).json({
+                error: "Not Able to Update User",
+            });
+        }
+    });
 };
 
 // Delete Single User
@@ -103,6 +120,17 @@ const deleteSingleUser = async (req, res) => {
     }
 };
 
+// userPhoto
+
+const userPhoto = async (req, res) => {
+    if (req.profile.photo) {
+        res.set("Content-Type", req.profile.photo.contentType);
+        return res.send(req.profile.photo);
+    } else {
+        res.send("Photo is Not present");
+    }
+};
+
 module.exports = {
     createUser,
     deleteSingleUser,
@@ -110,4 +138,5 @@ module.exports = {
     getSingleUser,
     getUserById,
     getAllUsers,
+    userPhoto,
 };
