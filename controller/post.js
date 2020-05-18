@@ -27,6 +27,27 @@ const postById = async (req, res, next, id) => {
     }
 };
 
+// NewsFeed controller
+
+const listNewsFeed = async (req, res) => {
+    let following = req.profile.following;
+    following.push(req.profile._id);
+    try {
+        let posts = await Post.find({
+            postedBy: { $in: req.profile.following },
+        })
+            .populate("comments.postedBy", "_id name")
+            .populate("postedBy", "_id name")
+            .sort("-created")
+            .exec();
+        res.json(posts);
+    } catch (error) {
+        return res.status(400).json({
+            err: `There is Something Wrong ${error}`,
+        });
+    }
+};
+
 // post list by User
 
 const listByUser = async (req, res) => {
@@ -202,4 +223,5 @@ module.exports = {
     unlike,
     comment,
     deleteComment,
+    listNewsFeed
 };

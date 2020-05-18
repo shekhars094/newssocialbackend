@@ -7,6 +7,7 @@ const {
     photo,
     postById,
     isPoster,
+    listNewsFeed,
     removePost,
     like,
     unlike,
@@ -21,6 +22,10 @@ router.param("postId", postById);
 // get Posts by userId
 
 router.get("/posts/by/:userId", requireSignIn, listByUser);
+
+// List News Feed
+
+router.get("/posts/feed/:userId", requireSignIn, listNewsFeed);
 
 // create New Post By a UserId
 
