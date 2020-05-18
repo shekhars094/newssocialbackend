@@ -97,7 +97,7 @@ const updateSingleUser = async (req, res) => {
         try {
             await user.save();
             user.password = undefined;
-            res.json(user);
+            return res.json(user);
         } catch (error) {
             return res.status(400).json({
                 err: "Not Able to Update User",
@@ -113,7 +113,7 @@ const deleteSingleUser = async (req, res) => {
         let user = req.profile;
         let deleteUser = await user.remove();
         deleteUser.password = undefined;
-        res.json(user);
+        return res.json(user);
     } catch (error) {
         return res.status(400).json({
             err: "Not Able to Delete User",
@@ -128,7 +128,7 @@ const userPhoto = async (req, res) => {
         res.set("Content-Type", req.profile.photo.contentType);
         return res.send(req.profile.photo);
     } else {
-        res.send("Photo is Not present");
+        return res.send("Photo is Not present");
     }
 };
 
