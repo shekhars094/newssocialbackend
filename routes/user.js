@@ -15,6 +15,7 @@ const {
     addFollowing,
     removeFollower,
     removeFollowing,
+    findPeople,
 } = require("../controller/user");
 
 // Loading a User
@@ -61,5 +62,9 @@ router.put("/users/follow", requireSignIn, addFollowing, addFollower);
 // update unfollowing
 
 router.put("/users/unfollow", requireSignIn, removeFollowing, removeFollower);
+
+// find People to follow
+
+router.get("/users/findpeople/:userId", requireSignIn, findPeople);
 
 module.exports = router;

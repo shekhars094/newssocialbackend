@@ -18,9 +18,11 @@ app.use(helmet());
 
 const userRouter = require("./routes/user");
 const authRouter = require("./routes/auth");
+const postRouter = require("./routes/post");
 
 app.use("/api", userRouter);
 app.use("/api", authRouter);
+app.use("/api", postRouter);
 
 app.listen(port, () => {
     console.log("App is running on ", port);

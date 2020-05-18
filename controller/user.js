@@ -20,15 +20,14 @@ const createUser = (req, res) => {
 
     user.save()
         .then((user) => {
-            const { first_name, last_name, email, user_name } = user;
+            const { name, email, username } = user;
             res.status(200).json({
-                first_name,
-                last_name,
+                name,
                 email,
-                user_name,
+                username,
             });
         })
-        .catch((err) => {
+        .catch((error) => {
             res.status(400).json({ err: `Something Is wrong ${err}` });
         });
 };
@@ -38,7 +37,7 @@ const createUser = (req, res) => {
 const getUserById = async (req, res, next, Id) => {
     try {
         const user = await User.findById(Id)
-            .populate("followings", "_id name")
+            .populate("following", "_id name")
             .populated("followers", "_id name")
             .exec();
         if (!user) {
@@ -48,9 +47,9 @@ const getUserById = async (req, res, next, Id) => {
         }
         req.profile = user;
         next();
-    } catch (err) {
+    } catch (error) {
         return res.status(400).json({
-            error: "Could Not retrieve User",
+            err: "Could Not retrieve User",
         });
     }
 };
@@ -60,10 +59,10 @@ const getUserById = async (req, res, next, Id) => {
 const getAllUsers = async (req, res) => {
     try {
         const allUsers = await User.find().select("name email");
-        res.json(allUsers);
-    } catch (err) {
+        return res.json(allUsers);
+    } catch (error) {
         res.status(400).json({
-            error: `Something is not good ${err}`,
+            err: `Something is not good ${err}`,
         });
     }
 };
@@ -94,15 +93,14 @@ const updateSingleUser = async (req, res) => {
         if (files.photo) {
             user.photo = fs.readFileSync(files.photo.path);
             user.photo.contentType = files.photo.type;
-            console.log(user);
         }
         try {
             await user.save();
             user.password = undefined;
             res.json(user);
-        } catch (err) {
+        } catch (error) {
             return res.status(400).json({
-                error: "Not Able to Update User",
+                err: "Not Able to Update User",
             });
         }
     });
@@ -116,7 +114,7 @@ const deleteSingleUser = async (req, res) => {
         let deleteUser = await user.remove();
         deleteUser.password = undefined;
         res.json(user);
-    } catch (err) {
+    } catch (error) {
         return res.status(400).json({
             err: "Not Able to Delete User",
         });
@@ -139,7 +137,7 @@ const userPhoto = async (req, res) => {
 const addFollowing = async (req, res, next) => {
     try {
         await User.findByIdAndUpdate(req.body.userId, {
-            $push: { followings: req.body.followId },
+            $push: { following: req.body.followId },
         });
         next();
     } catch (error) {
@@ -162,7 +160,7 @@ const addFollower = async (req, res) => {
             .populate("followers", "_id name")
             .exec();
         result.password = undefined;
-        res.json(result);
+        return res.json(result);
     } catch (error) {
         return res.status(400).json({
             err: "Something has gone in follwer",
@@ -175,7 +173,7 @@ const addFollower = async (req, res) => {
 const removeFollowing = async (req, res, next) => {
     try {
         await User.findByIdAndUpdate(req.body.userId, {
-            $pull: { followings: req.body.unfollowId },
+            $pull: { following: req.body.unfollowId },
         });
         next();
     } catch (error) {
@@ -198,7 +196,7 @@ const removeFollower = async (req, res) => {
             .populate("followers", "_id name")
             .exec();
         result.password = undefined;
-        res.json(result);
+        return res.json(result);
     } catch (error) {
         return res.status(400).json({
             err: `Something is wrong ${error}`,
@@ -206,7 +204,22 @@ const removeFollower = async (req, res) => {
     }
 };
 
+// FindPeople Controller
 
+const findPeople = async (req, res) => {
+    try {
+        const following = req.profile.following;
+        following.push(req.profile._id);
+        const users = await User.find({ _id: { $nin: { following } } }).select(
+            "name"
+        );
+        return res.json(users);
+    } catch (error) {
+        res.status(400).json({
+            err: `Something is not goood ${error}`,
+        });
+    }
+};
 
 module.exports = {
     createUser,
@@ -220,4 +233,5 @@ module.exports = {
     addFollower,
     removeFollowing,
     removeFollower,
+    findPeople,
 };
